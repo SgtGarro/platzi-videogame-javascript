@@ -10,6 +10,9 @@ const btnDown = document.querySelector("#down");
 const btnLeft = document.querySelector("#left");
 const btnRight = document.querySelector("#right");
 
+const labelLives = document.querySelector("#lives");
+const labelTime = document.querySelector("#time");
+
 let canvasSize, elementsSize;
 
 let level = 0;
@@ -26,6 +29,28 @@ const giftPosition = {
 };
 
 const enemiesPositions = [];
+
+const time = {
+  sec: 0,
+  min: 0,
+};
+const timer = setInterval(function () {
+  time.sec++;
+  if (time.sec % 60 === 0) {
+    time.min++;
+    time.sec = 0;
+  }
+  labelTime.textContent = `${String(time.min).padStart(2, "0")}:${String(
+    time.sec
+  ).padStart(2, "0")}`;
+}, 1000);
+
+const showLives = function () {
+  labelLives.textContent = "❤ ".repeat(lives);
+  labelLives.style.color = "red";
+};
+
+const showTime = function () {};
 
 const playerWin = function () {
   level++;
@@ -85,6 +110,7 @@ const drawMap = function (mapRowsCols) {
 };
 
 const gameWin = function () {
+  clearInterval(timer);
   console.log("You win");
 };
 
@@ -107,6 +133,7 @@ const updateGame = function () {
   // Draw
   drawMap(mapRowsCols);
   drawPlayer(updateGame);
+  showLives();
 };
 
 const setCanvasSize = function () {
