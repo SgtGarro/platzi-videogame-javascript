@@ -12,12 +12,56 @@ const btnRight = document.querySelector("#right");
 
 let canvasSize, elementsSize;
 
+let level = 0;
+let lives = 3;
+
 const playerPosition = {
   x: undefined,
   y: undefined,
 };
 
-const drawPlayer = function () {
+const giftPosition = {
+  x: undefined,
+  y: undefined,
+};
+
+const enemiesPositions = [];
+
+const playerWin = function () {
+  level++;
+  playerPosition.x = playerPosition.y = undefined;
+  giftPosition.x = giftPosition.y = undefined;
+  enemiesPositions.splice(0);
+};
+
+const playerFail = function () {
+  lives--;
+  if (lives === 0) {
+    level = 0;
+    lives = 3;
+  }
+  playerPosition.x = playerPosition.y = undefined;
+  giftPosition.x = giftPosition.y = undefined;
+};
+
+const drawPlayer = function (updateGame) {
+  const giftCollision =
+    playerPosition.x === giftPosition.x && playerPosition.y === giftPosition.y;
+
+  if (giftCollision) {
+    playerWin();
+    updateGame();
+  }
+
+  const enemyCollision = enemiesPositions.find((enemy) => {
+    return enemy.x === playerPosition.x && enemy.y === playerPosition.y;
+  });
+
+  if (enemyCollision) {
+    playerFail();
+    updateGame();
+  }
+
   game.fillText(
     emojis["PLAYER"],
     playerPosition.x * elementsSize,
@@ -27,36 +71,42 @@ const drawPlayer = function () {
 const drawMap = function (mapRowsCols) {
   mapRowsCols.forEach((row, y) =>
     row.forEach((col, x) => {
-      if (
-        col === "O" &&
-        playerPosition.x === undefined &&
-        playerPosition.y === undefined
-      ) {
+      if (col === "O" && playerPosition.x === undefined) {
         playerPosition.x = x;
         playerPosition.y = y;
-      }
+      } else if (col === "I" && giftPosition.x === undefined) {
+        giftPosition.x = x;
+        giftPosition.y = y;
+      } else if (col === "X") enemiesPositions.push({ x, y });
+
       game.fillText(emojis[col], x * elementsSize, y * elementsSize);
     })
   );
+};
+
+const gameWin = function () {
+  console.log("You win");
 };
 
 const updateGame = function () {
   game.font = `${elementsSize}px Verdana`;
   game.textBaseline = "top";
 
-  /**
-   * @type {string[]}
-   */
-  const level = 0;
-  const mapRows = maps[level].trim().replaceAll(" ", "").split("\n");
+  const map = maps[level];
+  if (!map) {
+    gameWin();
+    return;
+  }
+  const mapRows = map.trim().replaceAll(" ", "").split("\n");
   const mapRowsCols = mapRows.map((row) => row.split(""));
 
   // Clear
   game.clearRect(0, 0, canvasSize, canvasSize);
 
+  enemiesPositions.splice(0);
   // Draw
   drawMap(mapRowsCols);
-  drawPlayer();
+  drawPlayer(updateGame);
 };
 
 const setCanvasSize = function () {
