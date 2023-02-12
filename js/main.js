@@ -12,7 +12,32 @@ const btnRight = document.querySelector("#right");
 
 let canvasSize, elementsSize;
 
-const init = function () {
+const playerPosition = {
+  x: undefined,
+  y: undefined,
+};
+
+const drawPlayer = function () {
+  game.fillText(
+    emojis["PLAYER"],
+    playerPosition.x * elementsSize,
+    playerPosition.y * elementsSize
+  );
+};
+
+const drawMap = function (mapRowsCols) {
+  mapRowsCols.forEach((row, y) =>
+    row.forEach((col, x) => {
+      if (col === "O" && !playerPosition.x && !playerPosition.y) {
+        playerPosition.x = x;
+        playerPosition.y = y;
+      }
+      game.fillText(emojis[col], x * elementsSize, y * elementsSize);
+    })
+  );
+};
+
+const startGame = function () {
   game.font = `${elementsSize}px Verdana`;
   game.textBaseline = "top";
 
@@ -23,11 +48,12 @@ const init = function () {
   const mapRows = maps[level].trim().replaceAll(" ", "").split("\n");
   const mapRowsCols = mapRows.map((row) => row.split(""));
 
-  mapRowsCols.forEach((row, y) =>
-    row.forEach((col, x) => {
-      game.fillText(emojis[col], x * elementsSize, y * elementsSize);
-    })
-  );
+  // Clear
+  game.clearRect(0, 0, canvasSize, canvasSize);
+
+  // Draw
+  drawMap(mapRowsCols);
+  drawPlayer();
 };
 
 const setCanvasSize = function () {
@@ -38,26 +64,30 @@ const setCanvasSize = function () {
 
   elementsSize = canvasSize / 10 - 1;
 
-  init();
+  startGame();
 };
 
 setCanvasSize();
 
-window.addEventListener("load", init);
+window.addEventListener("load", startGame);
 window.addEventListener("resize", setCanvasSize);
 
 // Movement of the player
 const moveUp = function () {
-  console.log("Going up");
+  playerPosition.y--;
+  startGame();
 };
 const moveDown = function () {
-  console.log("Going down");
+  playerPosition.y++;
+  startGame();
 };
 const moveLeft = function () {
-  console.log("Going left");
+  playerPosition.x--;
+  startGame();
 };
 const moveRight = function () {
-  console.log("Going right");
+  playerPosition.x++;
+  startGame();
 };
 
 window.addEventListener("keydown", function (e) {
@@ -86,3 +116,5 @@ btnUp.addEventListener("click", moveUp);
 btnDown.addEventListener("click", moveDown);
 btnLeft.addEventListener("click", moveLeft);
 btnRight.addEventListener("click", moveRight);
+
+console.log(playerPosition);
