@@ -24,11 +24,14 @@ const drawPlayer = function () {
     playerPosition.y * elementsSize
   );
 };
-
 const drawMap = function (mapRowsCols) {
   mapRowsCols.forEach((row, y) =>
     row.forEach((col, x) => {
-      if (col === "O" && !playerPosition.x && !playerPosition.y) {
+      if (
+        col === "O" &&
+        playerPosition.x === undefined &&
+        playerPosition.y === undefined
+      ) {
         playerPosition.x = x;
         playerPosition.y = y;
       }
@@ -37,7 +40,7 @@ const drawMap = function (mapRowsCols) {
   );
 };
 
-const startGame = function () {
+const updateGame = function () {
   game.font = `${elementsSize}px Verdana`;
   game.textBaseline = "top";
 
@@ -64,30 +67,29 @@ const setCanvasSize = function () {
 
   elementsSize = canvasSize / 10 - 1;
 
-  startGame();
+  updateGame();
 };
-
 setCanvasSize();
 
-window.addEventListener("load", startGame);
+window.addEventListener("load", updateGame);
 window.addEventListener("resize", setCanvasSize);
 
 // Movement of the player
 const moveUp = function () {
-  playerPosition.y--;
-  startGame();
+  if (playerPosition.y - 1 >= 0) playerPosition.y--;
+  updateGame();
 };
 const moveDown = function () {
-  playerPosition.y++;
-  startGame();
+  if (playerPosition.y + 1 <= 9) playerPosition.y++;
+  updateGame();
 };
 const moveLeft = function () {
-  playerPosition.x--;
-  startGame();
+  if (playerPosition.x - 1 >= 0) playerPosition.x--;
+  updateGame();
 };
 const moveRight = function () {
-  playerPosition.x++;
-  startGame();
+  if (playerPosition.x + 1 <= 9) playerPosition.x++;
+  updateGame();
 };
 
 window.addEventListener("keydown", function (e) {
